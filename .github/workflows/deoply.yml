@@ -2,7 +2,13 @@ name: Deploy to Cloudflare
 
 on:
   push:
-    branches: ['main', 'test']
+    branches:
+      - main
+    paths:
+      - .github/workflows/deoply.yml
+      - tsconfig.json
+      - package.json
+      - src/index.ts
 
 jobs:
   deploy:
