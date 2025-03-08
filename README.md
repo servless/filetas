@@ -68,18 +68,9 @@
 
 ### 2. 本地部署到 CloudFlare
 
-- 修改代码 [`pages/_worker.js`]
+1. 登录请参考 **Workers** 中的**本地部署**的步骤 `1~4`
 
-> - 修改 `_worker.js` 文件。
-> - 修改 `src/index.ts` 后，通过 `Workers` 部署后，在 `CloudFlare` 平台复制代码替换 `_worker.js`
-
-...
-
-登录请参考 **Workers** 中的**本地部署**的步骤 `1~4`
-
-...
-
-5. 发布
+2. 发布
 
 	```bash
 	 wrangler pages deploy pages --project-name filetas
@@ -106,7 +97,7 @@
 
    **由于某些原因，`pages.dev` 可能无法正常访问，建议绑定自有域名。**
 
-6. 绑定域名
+3. 绑定域名
 
    在 **Compute (Workers)** -> **Workers & Pages** -> **Custom domains** -> **Add Custom Domain**（支持解析不在 CF 的域名），按钮以绑定域名。
 
