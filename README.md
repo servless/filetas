@@ -6,13 +6,13 @@
 
 ## 一、部署教程 - Workers
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/servless/cf-filetas&paid=true)
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/servless/filetas&paid=true)
 
 ### 1. 通过 GitHub Actions 发布至 CloudFlare
 
 从 CloudFlare 获取 [`CLOUDFLARE_API_TOKEN`](https://dash.cloudflare.com/profile/api-tokens) 值（`编辑 Cloudflare Workers`），并设置到项目。
 
-> `https://github.com/<ORG>/cf-filetas/settings/secrets/actions`
+> `https://github.com/<ORG>/filetas/settings/secrets/actions`
 
 ### 2. 本地部署到 CloudFlare
 
@@ -32,7 +32,7 @@
 4. 拉取本项目：
 
    ```bash
-   git clone https://github.com/servless/cf-filetas.git
+   git clone https://github.com/servless/filetas.git
    ```
 
 5. 修改 `wrangler.toml` 文件中的 `name`（filetas）为服务名 `myfile`（访问域名为：`myfile.abcd.workers.dev`）。
@@ -112,6 +112,6 @@
 
 ## 仓库镜像
 
-- https://git.jetsung.com/servless/cf-filetas
-- https://framagit.org/servless/cf-filetas
-- https://github.com/servless/cf-filetas
+- https://git.jetsung.com/servless/filetas
+- https://framagit.org/servless/filetas
+- https://github.com/servless/filetas
