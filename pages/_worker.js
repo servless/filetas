@@ -10,7 +10,7 @@ var htmlTemplate = `
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="author" content="Jetsung Chan">
-	<title>{{ title }}</title>
+	<title>\u6587\u4EF6\u52A0\u901F</title>
 	<style>
 		* {
 			box-sizing: border-box;
@@ -116,7 +116,7 @@ var htmlTemplate = `
 <body>
 	<div class="container">
 		<form class="form" id="downloadForm" method="GET" onsubmit="toSubmit(event)">
-			<h2>{{ title }}</h2>
+			<h2>\u4E0B\u8F7D\u52A0\u901F</h2>
 			<input type="text" name="fileUrl" placeholder="\u8BF7\u8F93\u5165\u6587\u4EF6\u4E0B\u8F7D\u5730\u5740" />
 			<br>
 			<button type="submit">\u4E0B\u8F7D</button>
@@ -133,92 +133,142 @@ var htmlTemplate = `
 `;
 
 // src/index.ts
+var regexPatterns = {
+  releases: /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/(?:releases|archive)\/.*$/i,
+  blobRaw: /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/(?:blob|raw)\/.*$/i,
+  infoGit: /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/(?:info|git-).*$/i,
+  rawContent: /^(?:https?:\/\/)?raw\.(?:githubusercontent|github)\.com\/.+?\/.+?\/.+?\/.+$/i,
+  gist: /^(?:https?:\/\/)?gist\.(?:githubusercontent|github)\.com\/.+?\/.+?\/.+$/i,
+  tags: /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/tags.*$/i
+};
+var corsHeaders = /* @__PURE__ */ __name((origin = "*") => ({
+  "Access-Control-Allow-Origin": origin,
+  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS",
+  "Access-Control-Max-Age": "86400"
+}), "corsHeaders");
+var rawHtmlResponse = /* @__PURE__ */ __name((html) => {
+  return new Response(html, {
+    headers: {
+      "content-type": "text/html;charset=UTF-8"
+    }
+  });
+}, "rawHtmlResponse");
+var isDomain = /* @__PURE__ */ __name((url) => {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.includes(".");
+  } catch (e) {
+    return false;
+  }
+}, "isDomain");
+var handleOptions = /* @__PURE__ */ __name((request) => {
+  if (request.headers.get("Origin") !== null && request.headers.get("Access-Control-Request-Method") !== null && request.headers.get("Access-Control-Request-Headers") !== null) {
+    return new Response(null, {
+      headers: {
+        ...corsHeaders,
+        "Access-Control-Allow-Headers": request.headers.get(
+          "Access-Control-Request-Headers"
+        ) || ""
+      }
+    });
+  } else {
+    return new Response(null, {
+      headers: {
+        Allow: "GET, HEAD, POST, OPTIONS"
+      }
+    });
+  }
+}, "handleOptions");
+var handleRequest = /* @__PURE__ */ __name(async (reqUrl, request) => {
+  const reqAttrs = {
+    method: request.method,
+    headers: new Headers(request.headers),
+    redirect: "manual",
+    // manual, *follow, error
+    body: request.body
+  };
+  const reqURL = new URL(reqUrl);
+  return proxyRequest(reqURL, reqAttrs);
+}, "handleRequest");
+var proxyRequest = /* @__PURE__ */ __name(async (reqURL, reqAttrs) => {
+  const response = await fetch(reqURL.href, reqAttrs);
+  const oldHeaders = response.headers;
+  const newHeaders = new Headers(oldHeaders);
+  if (newHeaders.has("location")) {
+    const location = newHeaders.get("location");
+    if (location === null) {
+      return new Response("Location header is null", { status: 500 });
+    }
+    reqAttrs.redirect = "follow";
+    return proxyRequest(new URL(location), reqAttrs);
+  }
+  newHeaders.set("Access-Control-Expose-Headers", "*");
+  newHeaders.set("Access-Control-Allow-Origin", "*");
+  newHeaders.delete("Content-Security-Policy");
+  newHeaders.delete("Content-Security-Policy-Report-Only");
+  newHeaders.delete("Clear-Site-Data");
+  return new Response(response.body, {
+    status: response.status,
+    // statusText: response.statusText,
+    headers: newHeaders
+  });
+}, "proxyRequest");
+var httpRequest = /* @__PURE__ */ __name((reqUrl, request, deployURL = "") => {
+  if (regexPatterns.releases.test(reqUrl) || regexPatterns.gist.test(reqUrl) || regexPatterns.tags.test(reqUrl) || regexPatterns.infoGit.test(reqUrl) || regexPatterns.rawContent.test(reqUrl)) {
+    return handleRequest(reqUrl, request);
+  } else if (regexPatterns.blobRaw.test(reqUrl)) {
+    reqUrl = reqUrl.replace("/blob/", "/raw/");
+    return handleRequest(reqUrl, request);
+  } else {
+    return fetch((deployURL ? deployURL + "/" : "") + reqUrl);
+  }
+}, "httpRequest");
+var doRequest = /* @__PURE__ */ __name(async (reqUrl, request) => {
+  if (request.method === "OPTIONS") {
+    return handleOptions(request);
+  }
+  const allowedMethods = ["GET", "HEAD", "POST"];
+  if (!allowedMethods.includes(request.method)) {
+    return new Response("Method Not Allowed", { status: 405 });
+  }
+  return httpRequest(reqUrl, request);
+}, "doRequest");
+var entry = /* @__PURE__ */ __name(async (request) => {
+  const url = new URL(request.url);
+  const deployURL = "";
+  if (url.pathname === "" || url.pathname === "/") {
+    return rawHtmlResponse(htmlTemplate);
+  }
+  if (url.pathname === "/favicon.ico") {
+    return new Response(null, { status: 204 });
+  }
+  let redirectUrl = url.pathname.slice(1) + url.search + url.hash;
+  redirectUrl = decodeURIComponent(redirectUrl);
+  const httpHttpsReg = /^https?:\/\//;
+  redirectUrl = redirectUrl.replace(/\/+https?:\/\/+/g, "https://");
+  if (redirectUrl.match(httpHttpsReg)) {
+    return doRequest(redirectUrl, request);
+  }
+  if (request.headers.has("referer")) {
+    const referer = request.headers.get("referer");
+    if (referer === null) {
+      return new Response("Referer header is null", { status: 500 });
+    }
+    const siteURL = referer.replace(deployURL + "/", "");
+    const originURL = new URL(siteURL).origin;
+    request.headers.set("origin", originURL);
+    request.headers.set("referer", originURL);
+    return doRequest(originURL + "/" + redirectUrl, request);
+  }
+  redirectUrl = redirectUrl.replace(/^\/+/g, "");
+  if (isDomain(redirectUrl.split("/")[0])) {
+    return doRequest("https://" + redirectUrl, request);
+  }
+  return new Response("Invalid URL", { status: 400 });
+}, "entry");
 var src_default = {
-  async fetch(request, env) {
-    async function gatherResponse(response) {
-      const { headers } = response;
-      const contentType = headers.get("content-type") || "";
-      if (contentType.includes("application/json")) {
-        return JSON.stringify(await response.json());
-      } else if (contentType.includes("application/text")) {
-        return response.text();
-      } else if (contentType.includes("text/html")) {
-        return response.text();
-      } else {
-        return response.text();
-      }
-    }
-    __name(gatherResponse, "gatherResponse");
-    function rawHtmlResponse(html) {
-      return new Response(html, {
-        headers: {
-          "content-type": "text/html;charset=UTF-8"
-        }
-      });
-    }
-    __name(rawHtmlResponse, "rawHtmlResponse");
-    function setCorsHeaders(response, origin) {
-      response = new Response(response.body, response);
-      response.headers.set("Access-Control-Allow-Origin", origin);
-      response.headers.append("Vary", "Origin");
-      return response;
-    }
-    __name(setCorsHeaders, "setCorsHeaders");
-    async function fetchWithOriginHeader(url2) {
-      const request2 = new Request(url2);
-      request2.headers.set("Origin", new URL(url2).origin);
-      return await fetch(url2);
-    }
-    __name(fetchWithOriginHeader, "fetchWithOriginHeader");
-    async function handleRequest(reqUrl) {
-      const url2 = new URL(reqUrl);
-      let response;
-      try {
-        url2.protocol = "https:";
-        response = await fetchWithOriginHeader(url2.href);
-      } catch (e) {
-        if (e instanceof TypeError) {
-          url2.protocol = "http:";
-          response = await fetchWithOriginHeader(url2.href);
-        } else {
-          throw e;
-        }
-      }
-      response = setCorsHeaders(response, url2.origin);
-      return response;
-    }
-    __name(handleRequest, "handleRequest");
-    if (request.method !== "GET") {
-      return new Response("Method Not Allowed", { status: 405 });
-    }
-    const url = new URL(request.url);
-    if (env.BASEURL !== "" && env.BASEURL !== url.origin) {
-      return Response.redirect(env.BASEURL, 302);
-    }
-    if (url.pathname === "" || url.pathname === "/") {
-      const title = env.TITLE;
-      const html = htmlTemplate.replace(/{{ title }}/g, title);
-      return rawHtmlResponse(html);
-    }
-    if (url.pathname === "/favicon.ico") {
-      return new Response(null, { status: 204 });
-    }
-    let redirectUrl = url.pathname.slice(1);
-    redirectUrl = decodeURIComponent(redirectUrl);
-    const httpReg = /^http?:\/\//;
-    const httpsReg = /^https?:\/\//;
-    if (redirectUrl.match(httpReg) || redirectUrl.match(httpsReg)) {
-      return handleRequest(redirectUrl);
-    }
-    redirectUrl = redirectUrl.replace(/^\/+/g, "https://");
-    if (redirectUrl.match(httpReg) || redirectUrl.match(httpsReg)) {
-      return handleRequest(redirectUrl);
-    }
-    redirectUrl = url.href;
-    if (redirectUrl.match(httpReg) || redirectUrl.match(httpsReg)) {
-      return handleRequest(redirectUrl);
-    }
-    return new Response(`request url: ${request.url}`);
+  async fetch(request) {
+    return entry(request);
   }
 };
 export {

@@ -15,7 +15,8 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "types": [
-      "@cloudflare/workers-types"
+      "@cloudflare/workers-types",
+			"service-worker"
     ]
   },
   "include": [

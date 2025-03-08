@@ -4,17 +4,17 @@
 
 **本项目已停止维护，请使用另一个更优秀的项目**：[**fastfile**](https://github.com/servless/fastfile)
 
-## 部署教程 - Workers
+## 一、部署教程 - Workers
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/servless/cf-filetas&paid=true)
 
-### 通过 GitHub Actions 发布至 CloudFlare
+### 1. 通过 GitHub Actions 发布至 CloudFlare
 
 从 CloudFlare 获取 [`CLOUDFLARE_API_TOKEN`](https://dash.cloudflare.com/profile/api-tokens) 值（`编辑 Cloudflare Workers`），并设置到项目。
 
 > `https://github.com/<ORG>/cf-filetas/settings/secrets/actions`
 
-### 本地部署到 CloudFlare
+### 2. 本地部署到 CloudFlare
 
 1. 注册 [CloudFlare 账号](https://www.cloudflare.com/)，并且设置 **Workers** 域名 (比如：`abcd.workers.dev`)
 2. 安装 [Wrangler 命令行工具](https://developers.cloudflare.com/workers/wrangler/)。
@@ -62,11 +62,11 @@
 
    在 **Compute (Workers)** -> **Workers & Pages** -> **Settings** -> **Domains & Routes** -> **Add** -> **Custom Domain**（仅支持解析在 CF 的域名），按钮以绑定域名。
 
-## 部署教程 - Pages
+## 二、部署教程 - Pages
 
-### 直接连接到 `GitHub` 后,一键部署
+### 1. 直接连接到 `GitHub` 后,一键部署
 
-### 本地部署到 CloudFlare
+### 2. 本地部署到 CloudFlare
 
 - 修改代码 [`pages/_worker.js`]
 

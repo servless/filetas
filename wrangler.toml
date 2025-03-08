@@ -1,9 +1,3 @@
 name = "filetas" # todo
 main = "./src/index.ts"
 compatibility_date = "2023-03-12"
-
-[vars]
-# 网站标题
-TITLE = "文件加速"
-# 网址，设置则会跳转
-BASEURL = ""

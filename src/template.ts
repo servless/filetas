@@ -6,7 +6,7 @@ export const htmlTemplate = `
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="author" content="Jetsung Chan">
-	<title>{{ title }}</title>
+	<title>文件加速</title>
 	<style>
 		* {
 			box-sizing: border-box;
@@ -112,7 +112,7 @@ export const htmlTemplate = `
 <body>
 	<div class="container">
 		<form class="form" id="downloadForm" method="GET" onsubmit="toSubmit(event)">
-			<h2>{{ title }}</h2>
+			<h2>下载加速</h2>
 			<input type="text" name="fileUrl" placeholder="请输入文件下载地址" />
 			<br>
 			<button type="submit">下载</button>
