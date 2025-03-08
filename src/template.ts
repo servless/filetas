@@ -120,7 +120,7 @@ export const htmlTemplate = `
 	</div>
 	<div class="copyright">
 		<p class="p-1">
-			© 2025 Cloudflare Workers | Powered by <a class="a-1" href="https://forum.idev.top" target="_black">iDEV SIG</a> | Project <a class="a-1" href="https://github.com/servless/filetas" target="_black">filetas</a>
+			© 2025 Cloudflare Workers  | Powered by <a class="a-1" href="https://forum.idev.top" target="_black">iDEV SIG</a> | Project <a class="a-1" href="https://github.com/servless/filetas" target="_black">filetas</a>
 		</p>
 	</div>
 </body>
