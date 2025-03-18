@@ -20,3 +20,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: |
+            # Deploy to Workers
+            deploy
+            # Deploy to Pages
+            pages deploy pages --project-name filetas
