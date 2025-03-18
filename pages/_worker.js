@@ -124,7 +124,7 @@ var htmlTemplate = `
 	</div>
 	<div class="copyright">
 		<p class="p-1">
-			\xA9 2025 Cloudflare Workers | Powered by <a class="a-1" href="https://forum.idev.top" target="_black">iDEV SIG</a> | Project <a class="a-1" href="https://github.com/servless/cf-filetas" target="_black">cf-filetas</a>
+			\xA9 2025 Cloudflare Workers  | Powered by <a class="a-1" href="https://forum.idev.top" target="_black">iDEV SIG</a> | Project <a class="a-1" href="https://github.com/servless/filetas" target="_black">filetas</a>
 		</p>
 	</div>
 </body>
@@ -220,10 +220,21 @@ var httpRequest = /* @__PURE__ */ __name((reqUrl, request, deployURL = "") => {
     reqUrl = reqUrl.replace("/blob/", "/raw/");
     return handleRequest(reqUrl, request);
   } else {
-    return fetch((deployURL ? deployURL + "/" : "") + reqUrl);
+    const newURL = new URL(deployURL ? deployURL + "/" : "" + reqUrl);
+    const newHeaders = new Headers();
+    newHeaders.set("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
+    const reqAttrs = {
+      method: request.method,
+      headers: newHeaders,
+      redirect: "manual",
+      // manual, *follow, error
+      body: request.body
+    };
+    return fetch(newURL, reqAttrs);
   }
 }, "httpRequest");
 var doRequest = /* @__PURE__ */ __name(async (reqUrl, request) => {
+  console.log(request.method, reqUrl);
   if (request.method === "OPTIONS") {
     return handleOptions(request);
   }

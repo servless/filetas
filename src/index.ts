@@ -127,16 +127,27 @@ const httpRequest = (reqUrl: string, request: Request, deployURL: string = ''): 
 	if (regexPatterns.releases.test(reqUrl) || regexPatterns.gist.test(reqUrl) || regexPatterns.tags.test(reqUrl) || regexPatterns.infoGit.test(reqUrl) || regexPatterns.rawContent.test(reqUrl)) {
 		return handleRequest(reqUrl, request)
 	} else if (regexPatterns.blobRaw.test(reqUrl)) {
-					reqUrl = reqUrl.replace('/blob/', '/raw/')
-					return handleRequest(reqUrl, request)
+		reqUrl = reqUrl.replace('/blob/', '/raw/')
+		return handleRequest(reqUrl, request)
 	} else {
-			return fetch((deployURL ?  deployURL + '/' : '') + reqUrl);
+		const newURL = new URL(deployURL ?  deployURL + '/' : '' + reqUrl);
+		const newHeaders = new Headers();
+		newHeaders.set('user-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
+
+		const reqAttrs: RequestInit = {
+			method: request.method,
+			headers: newHeaders,
+			redirect: "manual", // manual, *follow, error
+			body: request.body,
+		}
+		return fetch(newURL, reqAttrs);
 	}
 }
 
 // 执行请求
 // https://developers.cloudflare.com/workers/examples/cors-header-proxy/
 const doRequest = async (reqUrl: string, request: Request): Promise<Response> => {
+	console.log(request.method, reqUrl)
 	if (request.method === "OPTIONS") {
 		// Handle CORS preflight requests
 		return handleOptions(request);
